@@ -18,7 +18,7 @@ namespace Hangfire
 		/// <returns>The syntax to define more information.</returns>
 		public static IBindingNamedWithOrOnSyntax<T> InBackgroundJobScope<T>(this IBindingInSyntax<T> syntax)
 		{
-			return syntax.InScope(c => JobActivatorScope.Current);
+			return syntax.InScope(c => NinjectJobActivator.CurrentAsync);
 		}
 
 		/// <summary>
@@ -31,7 +31,7 @@ namespace Hangfire
 		/// <returns>The syntax to define more information.</returns>
 		public static IBindingNamedWithOrOnSyntax<T> InNamedOrBackgroundJobScope<T>(this IBindingInSyntax<T> syntax, Func<IContext, object> scopeCallback)
 		{
-			return syntax.InScope(context => scopeCallback(context) ?? JobActivatorScope.Current);
+			return syntax.InScope(context => scopeCallback(context) ?? NinjectJobActivator.CurrentAsync);
 		}
 	}
 }

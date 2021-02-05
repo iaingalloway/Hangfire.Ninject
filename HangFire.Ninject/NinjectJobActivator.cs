@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Ninject;
 using Ninject.Activation.Caching;
 using Ninject.Infrastructure;
@@ -13,6 +14,8 @@ namespace Hangfire
     {
         private readonly IKernel _kernel;
 
+        private static AsyncLocal<JobActivatorScope> _currentAsync = new AsyncLocal<JobActivatorScope>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NinjectJobActivator"/>
         /// class with a given Ninject Kernel.
@@ -25,6 +28,8 @@ namespace Hangfire
 
             _kernel = kernel;
         }
+
+        public static JobActivatorScope CurrentAsync => _currentAsync.Value;
 
         /// <inheritdoc />
         public override object ActivateJob(Type jobType)
@@ -44,6 +49,7 @@ namespace Hangfire
             public NinjectScope(IKernel kernel)
             {
                 _kernel = kernel;
+                _currentAsync.Value = this;
             }
 
             public override object Resolve(Type type)
@@ -53,7 +59,8 @@ namespace Hangfire
 
             public override void DisposeScope()
             {
-                _kernel.Components.Get<ICache>().Clear(JobActivatorScope.Current);
+                _kernel.Components.Get<ICache>().Clear(_currentAsync);
+                _currentAsync.Value = null;
             }
         }
     }
