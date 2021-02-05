@@ -59,7 +59,7 @@ namespace Hangfire
 
             public override void DisposeScope()
             {
-                _kernel.Components.Get<ICache>().Clear(_currentAsync);
+                _kernel.Components.Get<ICache>().Clear(_currentAsync.Value);
                 _currentAsync.Value = null;
             }
         }
